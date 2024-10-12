@@ -1,0 +1,22 @@
+FROM nvidia/cuda:11.7.1-devel-ubuntu22.04
+
+WORKDIR /app
+
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN apt update \
+        && apt -y install python3.10 python3-pip python3-tk python3.10-venv libglu1-mesa-dev libglib2.0-0 git netcat curl wget vim unzip cmake build-essential \
+        && ln -s /usr/bin/python3 /usr/local/bin/python \
+        && apt-get clean autoclean \
+        && apt-get autoremove --yes \
+        && rm -rf /var/lib/{apt,dpkg,cache,log}
+
+
+RUN git clone --recursive https://github.com/bmaltais/kohya_ss.git
+
+WORKDIR /app/kohya_ss
+RUN chmod +x setup.sh && ./setup.sh
+
+RUN chmod +x gui.sh
+ENTRYPOINT ["./gui.sh"]
+CMD ["--server_port", "7861"]
